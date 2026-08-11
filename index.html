@@ -207,7 +207,69 @@
 
     <div id="competitionInfo"></div>
   </div>
+  <!-- NỘI DUNG THI -->
+  <div class="card">
+    <h2>🥋 Nội dung thi</h2>
 
+    <label>Tên nội dung</label>
+    <input
+      id="categoryName"
+      placeholder="Ví dụ: Long Hổ Quyền"
+    >
+
+    <label>Loại nội dung</label>
+    <select id="categoryType">
+      <option value="quyen">Quyền</option>
+      <option value="doi_khang">Đối kháng</option>
+    </select>
+
+    <label>Nhóm tuổi</label>
+    <select id="categoryAgeGroup">
+      <option value="">-- Chọn nhóm --</option>
+      <option value="N1">Trẻ nhóm 1</option>
+      <option value="N2">Trẻ nhóm 2</option>
+      <option value="VD">Vô địch</option>
+    </select>
+
+    <label>Giới tính</label>
+    <select id="categoryGender">
+      <option value="">-- Chọn --</option>
+      <option value="Nam">Nam</option>
+      <option value="Nữ">Nữ</option>
+    </select>
+
+    <label>Hạng cân</label>
+    <input
+      id="categoryWeight"
+      placeholder="Ví dụ: 45kg (chỉ dùng cho đối kháng)"
+    >
+
+    <button
+      class="success"
+      onclick="saveCategory()"
+    >
+      💾 Lưu nội dung
+    </button>
+
+    <button
+      class="secondary"
+      onclick="clearCategoryForm()"
+    >
+      Hủy
+    </button>
+
+    <div id="categoryMessage"></div>
+  </div>
+
+
+  <!-- DANH SÁCH NỘI DUNG -->
+  <div class="card">
+    <h2>📋 Danh sách nội dung</h2>
+
+    <div id="categoryList">
+      <p>Chọn giải để xem nội dung.</p>
+    </div>
+  </div>
 
   <!-- THÊM VĐV -->
   <div class="card">
