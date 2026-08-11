@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vovinam Live</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      color: #222;
+    }
+
+    .header {
+      background: #111827;
+      color: white;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .header p {
+      margin: 8px 0 0;
+      opacity: 0.8;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .athlete {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .athlete:last-child {
+      border-bottom: none;
+    }
+
+    .rank {
+      font-size: 22px;
+      width: 50px;
+    }
+
+    .name {
+      flex: 1;
+      font-weight: bold;
+    }
+
+    .club {
+      color: #777;
+      margin-right: 30px;
+    }
+
+    .score {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .gold {
+      background: #fff8dc;
+    }
+
+    .silver {
+      background: #f5f5f5;
+    }
+
+    .bronze {
+      background: #fff0e5;
+    }
+
+    .status {
+      display: inline-block;
+      background: #16a34a;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .athlete {
+        padding: 12px 5px;
+      }
+
+      .club {
+        margin-right: 10px;
+        font-size: 13px;
+      }
+
+      .score {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>🥋 VOVINAM LIVE</h1>
+    <p>Hệ thống thi đấu Vovinam</p>
+  </div>
+
+  <div class="container">
+
+    <div class="card">
+      <div class="title">Giải Vovinam 2026</div>
+      <div class="subtitle">
+        Nội dung: Long Hổ Quyền
+        &nbsp; • &nbsp;
+        <span class="status">● ĐANG THI ĐẤU</span>
+      </div>
+
+      <div class="athlete gold">
+        <div class="rank">🥇</div>
+        <div class="name">Nguyễn Văn A</div>
+        <div class="club">CLB Vovinam 1</div>
+        <div class="score">8.75</div>
+      </div>
+
+      <div class="athlete silver">
+        <div class="rank">🥈</div>
+        <div class="name">Trần Văn B</div>
+        <div class="club">CLB Vovinam 2</div>
+        <div class="score">8.62</div>
+      </div>
+
+      <div class="athlete bronze">
+        <div class="rank">🥉</div>
+        <div class="name">Lê Văn C</div>
+        <div class="club">CLB Vovinam 3</div>
+        <div class="score">8.55</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
