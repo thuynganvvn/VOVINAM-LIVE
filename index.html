@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vovinam Live</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -13,57 +15,93 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f5f6f8;
-      color: #222;
+      background: #f3f4f6;
+      color: #111827;
     }
 
-    .header {
+    header {
       background: #111827;
       color: white;
-      padding: 24px;
-      text-align: center;
+      padding: 22px 20px;
     }
 
-    .header h1 {
+    header h1 {
       margin: 0;
-      font-size: 30px;
+      font-size: 28px;
     }
 
-    .header p {
-      margin: 8px 0 0;
-      opacity: 0.8;
+    header p {
+      margin: 7px 0 0;
+      opacity: .8;
     }
 
     .container {
       max-width: 1000px;
-      margin: 30px auto;
-      padding: 0 20px;
+      margin: 25px auto;
+      padding: 0 16px;
     }
 
     .card {
       background: white;
       border-radius: 16px;
-      padding: 24px;
+      padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      box-shadow: 0 3px 12px rgba(0,0,0,.07);
     }
 
-    .title {
-      font-size: 24px;
+    h2 {
+      margin-top: 0;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      font-size: 15px;
+      margin-top: 6px;
+    }
+
+    label {
+      display: block;
       font-weight: bold;
-      margin-bottom: 8px;
+      margin-top: 12px;
     }
 
-    .subtitle {
-      color: #666;
-      margin-bottom: 20px;
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 14px;
+    }
+
+    .primary {
+      background: #111827;
+      color: white;
+    }
+
+    .success {
+      background: #16a34a;
+      color: white;
+    }
+
+    .danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
     }
 
     .athlete {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 16px;
+      gap: 15px;
+      padding: 15px 5px;
       border-bottom: 1px solid #eee;
     }
 
@@ -71,59 +109,56 @@
       border-bottom: none;
     }
 
-    .rank {
-      font-size: 22px;
-      width: 50px;
-    }
-
-    .name {
+    .athlete-info {
       flex: 1;
+    }
+
+    .athlete-name {
+      font-size: 17px;
       font-weight: bold;
     }
 
-    .club {
-      color: #777;
-      margin-right: 30px;
+    .unit {
+      color: #6b7280;
+      margin-top: 4px;
     }
 
-    .score {
-      font-size: 22px;
-      font-weight: bold;
-    }
-
-    .gold {
-      background: #fff8dc;
-    }
-
-    .silver {
-      background: #f5f5f5;
-    }
-
-    .bronze {
-      background: #fff0e5;
+    .actions button {
+      margin: 0 3px;
     }
 
     .status {
       display: inline-block;
       background: #16a34a;
       color: white;
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 20px;
-      font-size: 14px;
+      font-size: 13px;
     }
 
-    @media (max-width: 600px) {
+    .hidden {
+      display: none;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 9px;
+      background: #f3f4f6;
+      margin-top: 12px;
+    }
+
+    @media(max-width: 600px) {
       .athlete {
-        padding: 12px 5px;
+        align-items: flex-start;
       }
 
-      .club {
-        margin-right: 10px;
-        font-size: 13px;
+      .actions {
+        display: flex;
+        flex-direction: column;
       }
 
-      .score {
-        font-size: 18px;
+      .actions button {
+        margin: 3px 0;
       }
     }
   </style>
@@ -131,45 +166,597 @@
 
 <body>
 
-  <div class="header">
-    <h1>🥋 VOVINAM LIVE</h1>
-    <p>Hệ thống thi đấu Vovinam</p>
+<header>
+  <h1>🥋 VOVINAM LIVE</h1>
+  <p>Quản lý giải đấu Vovinam</p>
+</header>
+
+<div class="container">
+
+  <!-- TẠO GIẢI -->
+  <div class="card">
+    <h2>🏆 Giải đấu</h2>
+
+    <label>Tên giải</label>
+    <input id="competitionName" placeholder="Ví dụ: Giải Vovinam Bình Thuận 2026">
+
+    <label>Ngày tổ chức</label>
+    <input id="competitionDate" type="date">
+
+    <label>Địa điểm</label>
+    <input id="competitionLocation" placeholder="Nhà thi đấu...">
+
+    <label>Đơn vị tổ chức</label>
+    <input id="competitionOrganizer" placeholder="Đơn vị tổ chức">
+
+    <button class="primary" onclick="createCompetition()">
+      + Tạo giải
+    </button>
+
+    <div id="competitionMessage"></div>
   </div>
 
-  <div class="container">
 
-    <div class="card">
-      <div class="title">Giải Vovinam 2026</div>
-      <div class="subtitle">
-        Nội dung: Long Hổ Quyền
-        &nbsp; • &nbsp;
-        <span class="status">● ĐANG THI ĐẤU</span>
-      </div>
+  <!-- CHỌN GIẢI -->
+  <div class="card">
+    <h2>📋 Giải đang quản lý</h2>
 
-      <div class="athlete gold">
-        <div class="rank">🥇</div>
-        <div class="name">Nguyễn Văn A</div>
-        <div class="club">CLB Vovinam 1</div>
-        <div class="score">8.75</div>
-      </div>
+    <select id="competitionSelect" onchange="loadAthletes()">
+      <option value="">-- Chọn giải --</option>
+    </select>
 
-      <div class="athlete silver">
-        <div class="rank">🥈</div>
-        <div class="name">Trần Văn B</div>
-        <div class="club">CLB Vovinam 2</div>
-        <div class="score">8.62</div>
-      </div>
+    <div id="competitionInfo"></div>
+  </div>
 
-      <div class="athlete bronze">
-        <div class="rank">🥉</div>
-        <div class="name">Lê Văn C</div>
-        <div class="club">CLB Vovinam 3</div>
-        <div class="score">8.55</div>
-      </div>
 
+  <!-- THÊM VĐV -->
+  <div class="card">
+    <h2>👤 Vận động viên</h2>
+
+    <input type="hidden" id="editingAthleteId">
+
+    <label>Họ tên</label>
+    <input id="athleteName" placeholder="Họ và tên">
+
+    <label>Đơn vị / CLB</label>
+    <input id="athleteUnit" placeholder="Tên đơn vị">
+
+    <label>Năm sinh</label>
+    <input id="athleteBirthYear" type="number" placeholder="2008">
+
+    <label>Số báo danh</label>
+    <input id="athleteNumber" placeholder="001">
+
+    <label>Giới tính</label>
+    <select id="athleteGender">
+      <option value="">-- Chọn --</option>
+      <option value="Nam">Nam</option>
+      <option value="Nữ">Nữ</option>
+    </select>
+
+    <button class="success" onclick="saveAthlete()">
+      💾 Lưu vận động viên
+    </button>
+
+    <button class="secondary" onclick="clearAthleteForm()">
+      Hủy
+    </button>
+
+    <div id="athleteMessage"></div>
+  </div>
+
+
+  <!-- DANH SÁCH -->
+  <div class="card">
+    <h2>🥋 Danh sách VĐV</h2>
+
+    <div id="athleteList">
+      <p>Chọn một giải để xem danh sách.</p>
     </div>
-
   </div>
+
+</div>
+
+
+<script>
+
+  // ==========================================
+  // KẾT NỐI SUPABASE
+  // ==========================================
+
+  const SUPABASE_URL =
+    "https://jlabgsukazjbriwwptfj.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_SgckE_nqdz8zXj7bxBc0vw_9NJOWHZo";
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  // ==========================================
+  // KHI MỞ WEBSITE
+  // ==========================================
+
+  window.addEventListener("load", async () => {
+    await loadCompetitions();
+  });
+
+
+  // ==========================================
+  // TẢI DANH SÁCH GIẢI
+  // ==========================================
+
+  async function loadCompetitions() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("competitions")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+      showMessage(
+        "competitionMessage",
+        "❌ Không tải được danh sách giải: " + error.message
+      );
+      return;
+    }
+
+    const select =
+      document.getElementById("competitionSelect");
+
+    select.innerHTML =
+      '<option value="">-- Chọn giải --</option>';
+
+    data.forEach(comp => {
+
+      const option =
+        document.createElement("option");
+
+      option.value = comp.id;
+
+      option.textContent =
+        `${comp.name} (${comp.code})`;
+
+      select.appendChild(option);
+    });
+  }
+
+
+  // ==========================================
+  // TẠO GIẢI
+  // ==========================================
+
+  async function createCompetition() {
+
+    const name =
+      document.getElementById("competitionName").value.trim();
+
+    const eventDate =
+      document.getElementById("competitionDate").value;
+
+    const location =
+      document.getElementById("competitionLocation").value.trim();
+
+    const organizer =
+      document.getElementById("competitionOrganizer").value.trim();
+
+    if (!name) {
+      alert("Em chưa nhập tên giải.");
+      return;
+    }
+
+    const code =
+      "VNM-" +
+      Math.random()
+        .toString(36)
+        .substring(2, 8)
+        .toUpperCase();
+
+
+    const { data, error } =
+      await supabaseClient
+        .from("competitions")
+        .insert({
+          name: name,
+          event_date: eventDate || null,
+          location: location || null,
+          organizer: organizer || null,
+          code: code,
+          status: "live"
+        })
+        .select()
+        .single();
+
+
+    if (error) {
+
+      showMessage(
+        "competitionMessage",
+        "❌ " + error.message
+      );
+
+      return;
+    }
+
+
+    showMessage(
+      "competitionMessage",
+      `✅ Tạo giải thành công! Mã giải: <b>${data.code}</b>`
+    );
+
+
+    document.getElementById("competitionName").value = "";
+    document.getElementById("competitionDate").value = "";
+    document.getElementById("competitionLocation").value = "";
+    document.getElementById("competitionOrganizer").value = "";
+
+
+    await loadCompetitions();
+
+    document.getElementById("competitionSelect").value =
+      data.id;
+
+    await loadAthletes();
+  }
+
+
+  // ==========================================
+  // HIỂN THỊ THÔNG TIN GIẢI
+  // ==========================================
+
+  async function loadCompetitionInfo(id) {
+
+    if (!id) {
+      document.getElementById("competitionInfo").innerHTML = "";
+      return;
+    }
+
+    const { data, error } =
+      await supabaseClient
+        .from("competitions")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error) return;
+
+    document.getElementById("competitionInfo").innerHTML = `
+      <div class="message">
+        <b>${escapeHtml(data.name)}</b><br>
+        📅 ${data.event_date || "Chưa có ngày"}<br>
+        📍 ${escapeHtml(data.location || "Chưa có địa điểm")}<br>
+        🏢 ${escapeHtml(data.organizer || "Chưa có đơn vị tổ chức")}<br>
+        🔗 Mã LIVE: <b>${escapeHtml(data.code)}</b>
+        <br><br>
+        <span class="status">● ${data.status}</span>
+      </div>
+    `;
+  }
+
+
+  // ==========================================
+  // TẢI VĐV
+  // ==========================================
+
+  async function loadAthletes() {
+
+    const competitionId =
+      document.getElementById("competitionSelect").value;
+
+    if (!competitionId) {
+
+      document.getElementById("athleteList").innerHTML =
+        "<p>Chọn một giải để xem danh sách.</p>";
+
+      return;
+    }
+
+
+    await loadCompetitionInfo(competitionId);
+
+
+    const { data, error } =
+      await supabaseClient
+        .from("athletes")
+        .select("*")
+        .eq("competition_id", competitionId)
+        .order("name");
+
+
+    if (error) {
+
+      document.getElementById("athleteList").innerHTML =
+        "❌ " + error.message;
+
+      return;
+    }
+
+
+    const list =
+      document.getElementById("athleteList");
+
+
+    if (!data.length) {
+
+      list.innerHTML =
+        "<p>Chưa có vận động viên.</p>";
+
+      return;
+    }
+
+
+    list.innerHTML = "";
+
+
+    data.forEach((athlete, index) => {
+
+      const div =
+        document.createElement("div");
+
+      div.className = "athlete";
+
+      div.innerHTML = `
+
+        <div class="rank">
+          ${index + 1}
+        </div>
+
+        <div class="athlete-info">
+
+          <div class="athlete-name">
+            ${escapeHtml(athlete.name)}
+          </div>
+
+          <div class="unit">
+            ${escapeHtml(athlete.unit || "Chưa có đơn vị")}
+            ${athlete.birth_year ? " • " + athlete.birth_year : ""}
+            ${athlete.registration_number ? " • SBD " + escapeHtml(athlete.registration_number) : ""}
+          </div>
+
+        </div>
+
+        <div class="actions">
+
+          <button
+            class="secondary"
+            onclick='editAthlete(${JSON.stringify(athlete)})'>
+            ✏️ Sửa
+          </button>
+
+          <button
+            class="danger"
+            onclick="deleteAthlete('${athlete.id}')">
+            🗑️ Xóa
+          </button>
+
+        </div>
+      `;
+
+      list.appendChild(div);
+    });
+  }
+
+
+  // ==========================================
+  // THÊM / SỬA VĐV
+  // ==========================================
+
+  async function saveAthlete() {
+
+    const competitionId =
+      document.getElementById("competitionSelect").value;
+
+    if (!competitionId) {
+      alert("Em hãy chọn giải trước.");
+      return;
+    }
+
+
+    const name =
+      document.getElementById("athleteName").value.trim();
+
+    const unit =
+      document.getElementById("athleteUnit").value.trim();
+
+    const birthYear =
+      document.getElementById("athleteBirthYear").value;
+
+    const registrationNumber =
+      document.getElementById("athleteNumber").value.trim();
+
+    const gender =
+      document.getElementById("athleteGender").value;
+
+    const editingId =
+      document.getElementById("editingAthleteId").value;
+
+
+    if (!name) {
+      alert("Em chưa nhập tên VĐV.");
+      return;
+    }
+
+
+    const athleteData = {
+
+      competition_id: competitionId,
+
+      name: name,
+
+      unit: unit || null,
+
+      birth_year:
+        birthYear ? Number(birthYear) : null,
+
+      registration_number:
+        registrationNumber || null,
+
+      gender:
+        gender || null
+    };
+
+
+    let result;
+
+
+    if (editingId) {
+
+      result =
+        await supabaseClient
+          .from("athletes")
+          .update(athleteData)
+          .eq("id", editingId);
+
+    } else {
+
+      result =
+        await supabaseClient
+          .from("athletes")
+          .insert(athleteData);
+    }
+
+
+    if (result.error) {
+
+      showMessage(
+        "athleteMessage",
+        "❌ " + result.error.message
+      );
+
+      return;
+    }
+
+
+    showMessage(
+      "athleteMessage",
+      editingId
+        ? "✅ Đã cập nhật VĐV."
+        : "✅ Đã thêm VĐV."
+    );
+
+
+    clearAthleteForm();
+
+    await loadAthletes();
+  }
+
+
+  // ==========================================
+  // SỬA VĐV
+  // ==========================================
+
+  function editAthlete(athlete) {
+
+    document.getElementById("editingAthleteId").value =
+      athlete.id;
+
+    document.getElementById("athleteName").value =
+      athlete.name || "";
+
+    document.getElementById("athleteUnit").value =
+      athlete.unit || "";
+
+    document.getElementById("athleteBirthYear").value =
+      athlete.birth_year || "";
+
+    document.getElementById("athleteNumber").value =
+      athlete.registration_number || "";
+
+    document.getElementById("athleteGender").value =
+      athlete.gender || "";
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }
+
+
+  // ==========================================
+  // XÓA VĐV
+  // ==========================================
+
+  async function deleteAthlete(id) {
+
+    if (!confirm("Em có chắc muốn xóa VĐV này không?")) {
+      return;
+    }
+
+
+    const { error } =
+      await supabaseClient
+        .from("athletes")
+        .delete()
+        .eq("id", id);
+
+
+    if (error) {
+
+      alert("Không thể xóa: " + error.message);
+
+      return;
+    }
+
+
+    await loadAthletes();
+  }
+
+
+  // ==========================================
+  // XÓA FORM
+  // ==========================================
+
+  function clearAthleteForm() {
+
+    document.getElementById("editingAthleteId").value = "";
+
+    document.getElementById("athleteName").value = "";
+
+    document.getElementById("athleteUnit").value = "";
+
+    document.getElementById("athleteBirthYear").value = "";
+
+    document.getElementById("athleteNumber").value = "";
+
+    document.getElementById("athleteGender").value = "";
+  }
+
+
+  // ==========================================
+  // THÔNG BÁO
+  // ==========================================
+
+  function showMessage(elementId, message) {
+
+    document.getElementById(elementId).innerHTML =
+      `<div class="message">${message}</div>`;
+  }
+
+
+  // ==========================================
+  // BẢO VỆ HTML
+  // ==========================================
+
+  function escapeHtml(value) {
+
+    if (value === null || value === undefined) {
+      return "";
+    }
+
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+</script>
 
 </body>
 </html>
