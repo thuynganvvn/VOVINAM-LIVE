@@ -6,7 +6,7 @@
   <title>Vovinam Live</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -269,7 +269,29 @@
       <p>Chọn giải để xem nội dung.</p>
     </div>
   </div>
+<!-- IMPORT EXCEL -->
+<div class="card">
+  <h2>📊 Import VĐV từ Excel</h2>
 
+  <p>
+    Chọn giải trước, sau đó chọn file Excel.
+  </p>
+
+  <input
+    type="file"
+    id="excelFile"
+    accept=".xlsx,.xls"
+  >
+
+  <button
+    class="success"
+    onclick="importExcel()"
+  >
+    📥 Import Excel
+  </button>
+
+  <div id="excelMessage"></div>
+</div>
   <!-- THÊM VĐV -->
   <div class="card">
     <h2>👤 Vận động viên</h2>
@@ -1124,6 +1146,125 @@ function clearCategoryForm() {
   document.getElementById("categoryGender").value = "";
 
   document.getElementById("categoryWeight").value = "";
+}
+  async function importExcel() {
+
+  const competitionId =
+    document.getElementById("competitionSelect").value;
+
+  if (!competitionId) {
+    alert("Em hãy chọn giải trước.");
+    return;
+  }
+
+  const fileInput =
+    document.getElementById("excelFile");
+
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert("Em hãy chọn file Excel.");
+    return;
+  }
+
+  try {
+
+    showMessage(
+      "excelMessage",
+      "⏳ Đang đọc file Excel..."
+    );
+
+    const arrayBuffer =
+      await file.arrayBuffer();
+
+    const workbook =
+      XLSX.read(arrayBuffer, {
+        type: "array"
+      });
+
+    const sheetName =
+      workbook.SheetNames[0];
+
+    const sheet =
+      workbook.Sheets[sheetName];
+
+    const rows =
+      XLSX.utils.sheet_to_json(sheet);
+
+    if (!rows.length) {
+      alert("File Excel không có dữ liệu.");
+      return;
+    }
+
+    const athletes =
+      rows.map(row => ({
+        competition_id: competitionId,
+
+        name:
+          row["Họ tên"] ||
+          row["Họ và tên"] ||
+          row["Tên"] ||
+          "",
+
+        unit:
+          row["Đơn vị"] ||
+          row["CLB"] ||
+          row["Đơn vị / CLB"] ||
+          null,
+
+        birth_year:
+          row["Năm sinh"]
+            ? Number(row["Năm sinh"])
+            : null,
+
+        registration_number:
+          row["Số báo danh"] ||
+          row["SBD"] ||
+          null,
+
+        gender:
+          row["Giới tính"] ||
+          null
+      }))
+      .filter(athlete => athlete.name);
+
+    if (!athletes.length) {
+      alert(
+        "Không tìm thấy cột Họ tên trong file Excel."
+      );
+      return;
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("athletes")
+        .insert(athletes);
+
+    if (error) {
+      showMessage(
+        "excelMessage",
+        "❌ " + error.message
+      );
+      return;
+    }
+
+    showMessage(
+      "excelMessage",
+      `✅ Đã import ${athletes.length} VĐV thành công!`
+    );
+
+    fileInput.value = "";
+
+    await loadAthletes();
+
+  } catch (error) {
+
+    showMessage(
+      "excelMessage",
+      "❌ Không đọc được file Excel: " +
+      error.message
+    );
+  }
 }
 </script>
 
