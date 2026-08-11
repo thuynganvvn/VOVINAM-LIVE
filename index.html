@@ -201,8 +201,7 @@
   <div class="card">
     <h2>📋 Giải đang quản lý</h2>
 
-    <select id="competitionSelect" onchange="loadAthletes()">
-      <option value="">-- Chọn giải --</option>
+<select id="competitionSelect" onchange="loadCompetitionData()">      <option value="">-- Chọn giải --</option>
     </select>
 
     <div id="competitionInfo"></div>
@@ -346,7 +345,10 @@
   window.addEventListener("load", async () => {
     await loadCompetitions();
   });
-
+async function loadCompetitionData() {
+  await loadAthletes();
+  await loadCategories();
+}
 
   // ==========================================
   // TẢI DANH SÁCH GIẢI
@@ -817,7 +819,308 @@
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
   }
+// ==========================================
+// QUẢN LÝ NỘI DUNG THI
+// ==========================================
 
+let editingCategoryId = "";
+
+// Lưu nội dung thi
+async function saveCategory() {
+
+  const competitionId =
+    document.getElementById("competitionSelect").value;
+
+  if (!competitionId) {
+    alert("Em hãy chọn giải trước.");
+    return;
+  }
+
+  const name =
+    document.getElementById("categoryName").value.trim();
+
+  const type =
+    document.getElementById("categoryType").value;
+
+  const ageGroup =
+    document.getElementById("categoryAgeGroup").value;
+
+  const gender =
+    document.getElementById("categoryGender").value;
+
+  const weightClass =
+    document.getElementById("categoryWeight").value.trim();
+
+
+  if (!name) {
+    alert("Em chưa nhập tên nội dung.");
+    return;
+  }
+
+
+  const categoryData = {
+    competition_id: competitionId,
+    name: name,
+    type: type,
+    age_group: ageGroup || null,
+    gender: gender || null,
+    weight_class: weightClass || null
+  };
+
+
+  let result;
+
+
+  // Đang sửa
+  if (editingCategoryId) {
+
+    result =
+      await supabaseClient
+        .from("categories")
+        .update(categoryData)
+        .eq("id", editingCategoryId);
+
+  }
+
+  // Tạo mới
+  else {
+
+    result =
+      await supabaseClient
+        .from("categories")
+        .insert(categoryData);
+  }
+
+
+  if (result.error) {
+
+    showMessage(
+      "categoryMessage",
+      "❌ " + result.error.message
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "categoryMessage",
+    editingCategoryId
+      ? "✅ Đã cập nhật nội dung."
+      : "✅ Đã tạo nội dung."
+  );
+
+
+  clearCategoryForm();
+
+  await loadCategories();
+}
+
+
+// ==========================================
+// TẢI DANH SÁCH NỘI DUNG
+// ==========================================
+
+async function loadCategories() {
+
+  const competitionId =
+    document.getElementById("competitionSelect").value;
+
+
+  const list =
+    document.getElementById("categoryList");
+
+
+  if (!competitionId) {
+
+    list.innerHTML =
+      "<p>Chọn giải để xem nội dung.</p>";
+
+    return;
+  }
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("categories")
+      .select("*")
+      .eq("competition_id", competitionId)
+      .order("created_at");
+
+
+  if (error) {
+
+    list.innerHTML =
+      "❌ " + error.message;
+
+    return;
+  }
+
+
+  if (!data.length) {
+
+    list.innerHTML =
+      "<p>Chưa có nội dung thi.</p>";
+
+    return;
+  }
+
+
+  list.innerHTML = "";
+
+
+  data.forEach((category, index) => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "athlete";
+
+
+    const typeName =
+      category.type === "doi_khang"
+        ? "Đối kháng"
+        : "Quyền";
+
+
+    div.innerHTML = `
+
+      <div class="rank">
+        ${index + 1}
+      </div>
+
+      <div class="athlete-info">
+
+        <div class="athlete-name">
+          ${escapeHtml(category.name)}
+        </div>
+
+        <div class="unit">
+
+          ${typeName}
+
+          ${category.age_group
+            ? " • " + escapeHtml(category.age_group)
+            : ""}
+
+          ${category.gender
+            ? " • " + escapeHtml(category.gender)
+            : ""}
+
+          ${category.weight_class
+            ? " • " + escapeHtml(category.weight_class)
+            : ""}
+
+        </div>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="secondary"
+          onclick='editCategory(${JSON.stringify(category)})'>
+          ✏️ Sửa
+        </button>
+
+        <button
+          class="danger"
+          onclick="deleteCategory('${category.id}')">
+          🗑️ Xóa
+        </button>
+
+      </div>
+    `;
+
+
+    list.appendChild(div);
+  });
+}
+
+
+// ==========================================
+// SỬA NỘI DUNG
+// ==========================================
+
+function editCategory(category) {
+
+  editingCategoryId =
+    category.id;
+
+  document.getElementById("categoryName").value =
+    category.name || "";
+
+  document.getElementById("categoryType").value =
+    category.type || "quyen";
+
+  document.getElementById("categoryAgeGroup").value =
+    category.age_group || "";
+
+  document.getElementById("categoryGender").value =
+    category.gender || "";
+
+  document.getElementById("categoryWeight").value =
+    category.weight_class || "";
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+// ==========================================
+// XÓA NỘI DUNG
+// ==========================================
+
+async function deleteCategory(id) {
+
+  if (!confirm("Em có chắc muốn xóa nội dung này không?")) {
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("categories")
+      .delete()
+      .eq("id", id);
+
+
+  if (error) {
+
+    alert(
+      "Không thể xóa: " + error.message
+    );
+
+    return;
+  }
+
+
+  await loadCategories();
+}
+
+
+// ==========================================
+// XÓA FORM NỘI DUNG
+// ==========================================
+
+function clearCategoryForm() {
+
+  editingCategoryId = "";
+
+  document.getElementById("categoryName").value = "";
+
+  document.getElementById("categoryType").value =
+    "quyen";
+
+  document.getElementById("categoryAgeGroup").value = "";
+
+  document.getElementById("categoryGender").value = "";
+
+  document.getElementById("categoryWeight").value = "";
+}
 </script>
 
 </body>
