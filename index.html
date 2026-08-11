@@ -346,7 +346,11 @@
     await loadCompetitions();
   });
 async function loadCompetitionData() {
-  await loadAthletes();
+await loadCompetitions();
+
+document.getElementById("competitionSelect").value = data.id;
+
+await loadCompetitionData();
   await loadCategories();
 }
 
